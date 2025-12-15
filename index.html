@@ -1,0 +1,1935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0a0806">
+    <title>Lecture Dangereuse</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="data:application/json,{
+        &quot;name&quot;: &quot;Lecture Dangereuse&quot;,
+        &quot;short_name&quot;: &quot;Lecture&quot;,
+        &quot;start_url&quot;: &quot;.&quot;,
+        &quot;display&quot;: &quot;standalone&quot;,
+        &quot;background_color&quot;: &quot;#0a0806&quot;,
+        &quot;theme_color&quot;: &quot;#0a0806&quot;
+    }">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        :root {
+            --bg: #0a0806;
+            --bg-elevated: #12100a;
+            --bg-highlight: #1a1810;
+            --text: #e8e4dc;
+            --text-dim: #a09080;
+            --text-muted: #6b6050;
+            --accent: #c4a060;
+            --border: #2a2015;
+            --danger: #c06060;
+            --warning: #a07060;
+            --info: #608080;
+            --translation: #607080;
+        }
+        
+        body {
+            font-family: Georgia, 'Times New Roman', serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            line-height: 1.6;
+        }
+        
+        /* Mobile-first responsive */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        /* Header */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 1rem;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        h1 {
+            font-size: 1rem;
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            color: var(--accent);
+        }
+        
+        @media (min-width: 640px) {
+            h1 { font-size: 1.25rem; }
+            header { padding: 1rem 1.5rem; }
+        }
+        
+        /* Navigation */
+        nav {
+            display: flex;
+            gap: 0.25rem;
+            overflow-x: auto;
+            padding: 0.5rem 0;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .nav-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.65rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 0.5rem 0.75rem;
+            cursor: pointer;
+            font-family: inherit;
+            white-space: nowrap;
+            border-radius: 2px;
+            transition: all 0.2s;
+        }
+        
+        .nav-btn.active {
+            color: var(--accent);
+            background: var(--bg-elevated);
+        }
+        
+        .nav-btn:hover {
+            color: var(--accent);
+        }
+        
+        /* Warning Banner */
+        .warning-banner {
+            background: #1a1512;
+            border-bottom: 1px solid var(--warning);
+            padding: 0.75rem 1rem;
+            font-size: 0.8rem;
+            color: var(--warning);
+        }
+        
+        .warning-banner strong {
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+        
+        /* Main Layout */
+        main {
+            display: flex;
+            flex-direction: column;
+            min-height: calc(100vh - 120px);
+        }
+        
+        @media (min-width: 1024px) {
+            main {
+                flex-direction: row;
+            }
+        }
+        
+        .panel {
+            padding: 1rem;
+            overflow-y: auto;
+        }
+        
+        .left-panel {
+            flex: 1;
+        }
+        
+        .right-panel {
+            background: var(--bg-elevated);
+            border-top: 1px solid var(--border);
+            min-height: 40vh;
+        }
+        
+        @media (min-width: 1024px) {
+            .right-panel {
+                flex: 0 0 40%;
+                border-top: none;
+                border-left: 1px solid var(--border);
+                max-height: calc(100vh - 120px);
+            }
+            
+            .left-panel {
+                max-height: calc(100vh - 120px);
+            }
+        }
+        
+        /* Buttons */
+        .btn {
+            font-family: inherit;
+            font-size: 0.7rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 0.6rem 1rem;
+            border: none;
+            border-radius: 2px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: var(--accent);
+            color: var(--bg);
+        }
+        
+        .btn-secondary {
+            background: var(--border);
+            color: var(--text);
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: var(--bg);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Form Elements */
+        textarea, input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 1rem;
+            border-radius: 2px;
+            resize: vertical;
+        }
+        
+        textarea:focus, input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        /* Text Display */
+        .reading-text {
+            font-size: 1.1rem;
+            line-height: 1.9;
+        }
+        
+        .sentence {
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            border-left: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .sentence.selected {
+            background: var(--bg-elevated);
+            border-left-color: var(--accent);
+        }
+        
+        .word {
+            cursor: pointer;
+            padding: 0.1rem 0.15rem;
+            border-radius: 2px;
+            transition: all 0.15s;
+        }
+        
+        .word:hover {
+            background: rgba(196, 160, 96, 0.2);
+        }
+        
+        .word.selected {
+            background: var(--accent);
+            color: var(--bg);
+        }
+        
+        .word.in-lexicon {
+            color: var(--accent);
+            border-bottom: 1px dotted var(--accent);
+        }
+        
+        /* Analysis Boxes */
+        .analysis-box {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: var(--bg);
+            border-left: 2px solid var(--border);
+        }
+        
+        .analysis-box .label {
+            font-size: 0.6rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 0.3rem;
+            color: var(--text-muted);
+        }
+        
+        .analysis-box p {
+            font-size: 0.9rem;
+        }
+        
+        .box-warning {
+            border-color: var(--warning);
+            background: #1a1210;
+        }
+        .box-warning .label { color: var(--warning); }
+        
+        .box-danger {
+            border-color: var(--danger);
+            background: #1a0a0a;
+        }
+        .box-danger .label { color: var(--danger); }
+        
+        .box-debate {
+            border-color: #a080a0;
+            background: #15101a;
+        }
+        .box-debate .label { color: #a080a0; }
+        
+        .box-practice {
+            border-color: #60a060;
+            background: #0a1a0a;
+        }
+        .box-practice .label { color: #60a060; }
+        
+        /* Conversation */
+        .message {
+            padding: 0.75rem;
+            margin-bottom: 0.75rem;
+            border-radius: 2px;
+        }
+        
+        .message.user {
+            background: var(--bg-highlight);
+        }
+        
+        .message.assistant {
+            background: var(--bg);
+            border-left: 2px solid var(--accent);
+        }
+        
+        .message .role {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.3rem;
+        }
+        
+        .message .content {
+            font-size: 0.95rem;
+            white-space: pre-wrap;
+        }
+        
+        /* Categories */
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .category-card {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .category-card:hover {
+            border-color: var(--accent);
+        }
+        
+        .category-card h3 {
+            font-size: 0.9rem;
+            color: var(--accent);
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+        }
+        
+        .category-card p {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+        
+        /* Lexicon Entry */
+        .lexicon-entry {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .lexicon-entry h3 {
+            font-size: 1.25rem;
+            color: var(--accent);
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+        }
+        
+        .lexicon-entry .meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+        
+        /* Debate Section */
+        .debate-section {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .debate-section h4 {
+            font-size: 0.8rem;
+            color: #a080a0;
+            font-weight: 400;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .position {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: var(--bg);
+            border-left: 2px solid var(--text-muted);
+        }
+        
+        .position .thinker {
+            font-size: 0.75rem;
+            color: var(--accent);
+            margin-bottom: 0.25rem;
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            z-index: 1000;
+        }
+        
+        .modal {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal h2 {
+            font-size: 1.25rem;
+            color: var(--accent);
+            font-weight: 400;
+            margin-bottom: 1rem;
+        }
+        
+        /* Section Labels */
+        .section-label {
+            font-size: 0.65rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+        
+        /* Utility */
+        .mt-1 { margin-top: 0.5rem; }
+        .mt-2 { margin-top: 1rem; }
+        .mb-1 { margin-bottom: 0.5rem; }
+        .mb-2 { margin-bottom: 1rem; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .gap-1 { gap: 0.5rem; }
+        .gap-2 { gap: 1rem; }
+        
+        /* Loading */
+        .loading {
+            color: var(--accent);
+            font-style: italic;
+        }
+        
+        /* Critique Box - Always visible */
+        .critique-box {
+            background: #0d0808;
+            border: 1px solid var(--danger);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+        }
+        
+        .critique-box h4 {
+            color: var(--danger);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+            font-weight: 400;
+        }
+        
+        .critique-box p {
+            color: var(--text-dim);
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="empty-state">
+            <p>Loading Lecture Dangereuse...</p>
+        </div>
+    </div>
+
+<script>
+// ============================================
+// THE LEXICON - ORGANIZED BY CATEGORY, NOT AUTHOR
+// WITH DEBATES, WARNINGS, AND MATERIAL PRACTICES
+// ============================================
+
+const LEXICON = {
+    // ==========================================
+    // CATEGORY: CONDITIONS
+    // What is being named, what exists
+    // ==========================================
+    conditions: {
+        name: "Conditions",
+        description: "What is being named. The structures, situations, worlds that exist.",
+        warning: "Naming a condition is not explaining it. These words point to lived realities that exceed any definition.",
+        entries: {
+            "colonialisme": {
+                term: "colonialisme / colonialism",
+                definition: "Not just occupation but a total system: economic extraction, political domination, epistemic violence, psychological destruction.",
+                
+                positions: [
+                    {
+                        thinker: "Césaire",
+                        position: "Colonialism is not civilization but its opposite. It brutalizes the colonizer as much as the colonized. 'A civilization that colonizes is already sick.'"
+                    },
+                    {
+                        thinker: "Fanon",
+                        position: "Colonialism creates the colonized. It is a Manichaean world—absolute division. There is no reform, only destruction."
+                    },
+                    {
+                        thinker: "Quijano",
+                        position: "Colonialism ended but coloniality persists—the patterns of power, being, knowledge that colonialism established continue after independence."
+                    }
+                ],
+                
+                debate: "Does colonialism have an outside? Can it be reformed or only destroyed? Is 'postcolonial' possible or does coloniality persist?",
+                
+                material: "The Congo under Leopold: 10 million dead. Algeria: 1.5 million. The ongoing occupation of Palestine. The prison. The border.",
+                
+                practice: "Land back movements. BDS. Anti-colonial organizing. But also: interrogating how colonial logics operate in movements themselves.",
+                
+                danger: "Naming colonialism can domesticate it—turn it into 'history' rather than ongoing structure. This definition is already a reduction.",
+                
+                questions: [
+                    "What distinguishes colonialism from other forms of domination?",
+                    "Is settler colonialism the same as extractive colonialism?",
+                    "What would the end of colonialism actually require?"
+                ]
+            },
+            
+            "esclavage": {
+                term: "esclavage / slavery",
+                definition: "Not labor exploitation but social death: natal alienation, general dishonor, gratuitous violence. The slave is not a worker but an object.",
+                
+                positions: [
+                    {
+                        thinker: "Patterson",
+                        position: "Slavery is social death: the slave has no recognized kin, no honor, exists only through the master. This is not metaphor but social-structural reality."
+                    },
+                    {
+                        thinker: "Spillers",
+                        position: "The Middle Passage made the body into flesh—ungendered, opened, violated. The distinction between body and flesh is the distinction between free and captive."
+                    },
+                    {
+                        thinker: "Wilderson",
+                        position: "Slavery is the paradigm of anti-Blackness. It did not end; it transformed. The Black remains positioned as socially dead."
+                    },
+                    {
+                        thinker: "Hartman",
+                        position: "The afterlife of slavery: slavery's persistence through mass incarceration, premature death, the fungibility of Black life."
+                    }
+                ],
+                
+                debate: "Is slavery a historical event that ended or an ongoing structure? Is anti-Blackness the same as slavery? Can there be Black life (not just Black death) under these conditions?",
+                
+                material: "12.5 million Africans transported. 2 million died in passage. The Atlantic as cemetery. The 13th Amendment: 'except as punishment for crime.' 2.3 million incarcerated today.",
+                
+                practice: "Prison abolition. Reparations. But the question Wilderson raises: is abolition of the prison enough if the structure of social death persists?",
+                
+                danger: "Treating slavery as 'past' obscures its continuation. But treating it as eternal risks foreclosing change.",
+                
+                questions: [
+                    "What is the relationship between slavery and capitalism?",
+                    "Can there be slavery without race? Race without slavery?",
+                    "What would genuine abolition require—not just of institutions but of the relations they encode?"
+                ]
+            },
+            
+            "anti-noirceur": {
+                term: "anti-Blackness / anti-noirceur",
+                definition: "Not racism against Black people but the constitutive exclusion that makes civil society possible. The Human is defined against the Black.",
+                
+                positions: [
+                    {
+                        thinker: "Wilderson",
+                        position: "Anti-Blackness is not analogous to other racisms. It is gratuitous—violence without reason, without limit, without the possibility of satisfaction."
+                    },
+                    {
+                        thinker: "Sexton",
+                        position: "Anti-Blackness is the 'social condition of possibility' for all other forms of oppression. It is the template."
+                    },
+                    {
+                        thinker: "Sharpe",
+                        position: "Anti-Blackness is the weather—not an event but the climate. The atmospheric condition of Black life."
+                    }
+                ],
+                
+                debate: "Does centering anti-Blackness erase other forms of oppression? Or does it reveal their common structure? Can there be coalition across the antagonism? Moten and Wilderson disagree fundamentally here.",
+                
+                material: "Lynching. The Middle Passage. Police murder. But also: the everyday—the microaggressions, the exclusions, the exhaustion.",
+                
+                danger: "This analysis can foreclose hope. But false hope is also violence. The question is whether attending to the depth of anti-Blackness opens or closes possibilities.",
+                
+                questions: [
+                    "What is the relationship between anti-Blackness and other forms of racism?",
+                    "Is anti-Blackness global or specific to the Americas?",
+                    "What would the end of anti-Blackness require?"
+                ]
+            },
+            
+            "zone": {
+                term: "zone / compartment",
+                definition: "Colonial space is divided. The zone of being and the zone of non-being. The settler town and the native quarter. This is not metaphor but physical reality.",
+                
+                positions: [
+                    {
+                        thinker: "Fanon",
+                        position: "The colonial world is cut in two. The dividing line is marked by barracks and police stations. It is a Manichaean world."
+                    },
+                    {
+                        thinker: "McKittrick",
+                        position: "Demonic grounds: Black geographies are produced by but also exceed plantation logics. There are other spatial stories."
+                    }
+                ],
+                
+                material: "The Casbah. The reservation. The ghetto. The bantustans. The border wall. Redlining. Environmental racism—which neighborhoods get the pollution.",
+                
+                practice: "Spatial justice movements. Housing organizing. But also: the undercommons, the maroon spaces that exist within and against."
+            }
+        }
+    },
+    
+    // ==========================================
+    // CATEGORY: OPERATIONS
+    // How power works
+    // ==========================================
+    operations: {
+        name: "Operations",
+        description: "How power works. The mechanisms, techniques, processes by which domination operates.",
+        warning: "Analyzing operations can create the illusion of mastery—as if understanding how power works means escaping it.",
+        entries: {
+            "violence": {
+                term: "violence",
+                definition: "Not aberration but foundation. Colonial peace is colonial violence. The question is not whether violence but whose violence counts.",
+                
+                positions: [
+                    {
+                        thinker: "Fanon",
+                        position: "Decolonization is always violent because colonization is violence. The violence of the colonized is response, not initiation. It is absolute praxis—the means of becoming human."
+                    },
+                    {
+                        thinker: "Césaire",
+                        position: "What the colonizer cannot forgive is not the violence of resistance but the violence he has committed. The violence of colonialism returns."
+                    },
+                    {
+                        thinker: "Benjamin",
+                        position: "The distinction between law-making and law-preserving violence. The state's violence founds and maintains order."
+                    },
+                    {
+                        thinker: "Davis",
+                        position: "The violence of the prison is rendered invisible. Abolition requires recognizing state violence as violence."
+                    }
+                ],
+                
+                debate: "Is revolutionary violence the same as colonial violence? Can violence be transformative or is it always destructive? What about nonviolence—resistance or complicity?",
+                
+                material: "The numbers obscure: millions dead in colonial 'peace.' The violence required to maintain property relations. Every eviction backed by police guns.",
+                
+                danger: "Discussing violence academically is itself a kind of violence—abstraction from the bodies. Who gets to theorize violence? From what position?",
+                
+                questions: [
+                    "What counts as violence? (Is poverty violence? Is neglect violence?)",
+                    "Can the colonizer's violence and the colonized's violence be equivalent?",
+                    "What is the relationship between violence and liberation?"
+                ]
+            },
+            
+            "déshumanisation": {
+                term: "déshumanisation / dehumanization",
+                definition: "Not treating humans badly but producing a category of non-human. The Human is a genre; some are excluded from it by design.",
+                
+                positions: [
+                    {
+                        thinker: "Wynter",
+                        position: "The Human is not a fact but a genre—a story that overrepresents itself as the universal. 'Man' is a Western invention that excludes most of humanity."
+                    },
+                    {
+                        thinker: "Fanon",
+                        position: "The colonized is declared inhuman so that colonization can be justified. But this declaration must be constantly repeated—it is never secure."
+                    },
+                    {
+                        thinker: "Jackson",
+                        position: "'Becoming Human' interrogates the category itself. The demand to be recognized as human may reinforce the exclusionary category."
+                    }
+                ],
+                
+                debate: "Should liberation aim for inclusion in 'the Human' or destruction of the category? Is 'human rights' a path to justice or a colonial trap?",
+                
+                material: "The Valladolid debate 1550: are Indigenous peoples human? The legal question reveals that humanity is not biological but political.",
+                
+                danger: "This lexicon, by defining terms, participates in the Western project of making everything knowable. That project is implicated in dehumanization."
+            },
+            
+            "extraction": {
+                term: "extraction",
+                definition: "Taking without return. Resources, labor, knowledge, life itself. The colony exists to be extracted from.",
+                
+                positions: [
+                    {
+                        thinker: "Rodney",
+                        position: "Europe developed by underdeveloping Africa. One process, not two. Development is extraction."
+                    },
+                    {
+                        thinker: "Robinson",
+                        position: "Racial capitalism requires racialized populations to extract from. Race is a technology of extraction."
+                    }
+                ],
+                
+                material: "The mines. The plantations. But also: knowledge extraction—anthropology. Genetic extraction—biopiracy. Data extraction—surveillance capitalism.",
+                
+                practice: "Resource sovereignty movements. Indigenous data sovereignty. Reparations as return."
+            },
+            
+            "nécropolitique": {
+                term: "nécropolitique / necropolitics",
+                definition: "Beyond biopolitics (managing life) to necropolitics (managing death). The power to decide who lives and who dies, who is made to die, who is let to die.",
+                
+                positions: [
+                    {
+                        thinker: "Mbembe",
+                        position: "The colony is the site where sovereignty means fundamentally the capacity to decide who may live and who must die. This power is now generalized."
+                    },
+                    {
+                        thinker: "Foucault",
+                        position: "Biopolitics: the management of life, populations, their optimization. But Mbembe shows: in the colony, it was always about death."
+                    }
+                ],
+                
+                material: "Gaza. The Mediterranean. The camp. The prison. COVID-19 and who was made to work, who was left to die.",
+                
+                questions: [
+                    "What is the relationship between letting die and making die?",
+                    "Is necropolitics specific to colonies or is it now everywhere?",
+                    "What is the politics of grief? Of mourning?"
+                ]
+            }
+        }
+    },
+    
+    // ==========================================
+    // CATEGORY: RESISTANCES
+    // How people fight back
+    // ==========================================
+    resistances: {
+        name: "Resistances",
+        description: "How people survive, refuse, escape, fight back. Not all resistance is visible. Not all visibility is resistance.",
+        warning: "Celebrating resistance can erase its costs. Romanticizing it can serve power. Resistance is not redemption.",
+        entries: {
+            "marronnage": {
+                term: "marronnage / fugitivity",
+                definition: "Flight. Escape. The creation of autonomous spaces beyond colonial control. Not just running away but running toward.",
+                
+                positions: [
+                    {
+                        thinker: "Roberts",
+                        position: "Marronage as philosophy: freedom as flight, not as recognition. The maroon does not ask for inclusion; they create another world."
+                    },
+                    {
+                        thinker: "Moten",
+                        position: "Fugitivity: not just escape from slavery but the ongoing flight from capture. Black life as already fugitive."
+                    },
+                    {
+                        thinker: "Hartman",
+                        position: "The everyday resistances, the small refusals, the stealing of oneself. Fugitivity is not only grand escape but quotidian survival."
+                    }
+                ],
+                
+                material: "Quilombo dos Palmares. The Great Dismal Swamp. Jamaica's Maroon communities. The underground railroad. But also: the slowdown, the sabotage, the feigned illness.",
+                
+                debate: "Is fugitivity enough? Can flight substitute for confrontation? Does fugitivity abandon those who cannot flee?",
+                
+                practice: "Mutual aid networks. Underground spaces. But also: what would it mean to live fugitively within the institution?"
+            },
+            
+            "abolition": {
+                term: "abolition",
+                definition: "Not reform but ending. Not improving the prison but destroying it. Not making policing better but making it unnecessary.",
+                
+                positions: [
+                    {
+                        thinker: "Davis",
+                        position: "Prisons are obsolete. They do not solve crime; they warehouse racialized poverty. Abolition means building what makes prisons unthinkable."
+                    },
+                    {
+                        thinker: "Gilmore",
+                        position: "Abolition is not just about prisons. It is 'presence'—building the infrastructure of care, housing, education, health that makes caging people unnecessary."
+                    },
+                    {
+                        thinker: "Kaba",
+                        position: "Abolition is a horizon. We move toward it by doing the work now—mutual aid, transformative justice, building alternatives."
+                    },
+                    {
+                        thinker: "Wilderson",
+                        position: "Can abolition of the prison touch the structure of social death? Or do we need abolition of civil society itself?"
+                    }
+                ],
+                
+                debate: "Is abolition a strategy or a horizon? Does abolition of institutions touch the deeper structures? What about violence that abolition movements might face?",
+                
+                material: "The 19th century abolition movement. Prison strikes. The Movement for Black Lives. Defund campaigns.",
+                
+                practice: "Supporting bail funds. Mutual aid. Transformative justice processes. Cop-watching. Divesting from carceral systems."
+            },
+            
+            "révolution": {
+                term: "révolution / revolution",
+                definition: "Not reform but rupture. Not change within the system but change of the system. The making of a new world.",
+                
+                positions: [
+                    {
+                        thinker: "James",
+                        position: "Haiti 1791-1804: the enslaved made the French Revolution real. They universalized what the bourgeoisie kept particular."
+                    },
+                    {
+                        thinker: "Fanon",
+                        position: "Revolution transforms the colonized into agents. It is not just a change of government but a change of humanity itself."
+                    },
+                    {
+                        thinker: "Robinson",
+                        position: "The Black Radical Tradition pursues revolution through means that exceed European revolutionary theory."
+                    }
+                ],
+                
+                material: "Haiti. Algeria. Cuba. Guinea-Bissau. But also: the revolutions that failed, were crushed, were betrayed. What do we learn from defeat?",
+                
+                debate: "Is revolution still possible? What form would it take? Is the revolutionary subject the proletariat, the colonized, the damned, or someone else?",
+                
+                danger: "Talking about revolution in an app is absurd. Revolution is not content to be consumed."
+            }
+        }
+    },
+    
+    // ==========================================
+    // CATEGORY: HORIZONS
+    // What is being reached for
+    // ==========================================
+    horizons: {
+        name: "Horizons",
+        description: "What is being reached for. Not utopias but orientations. Not blueprints but directions.",
+        warning: "Defining horizons risks foreclosing them. These words point beyond themselves.",
+        entries: {
+            "libération": {
+                term: "libération / liberation",
+                definition: "Not inclusion in the existing order but the creation of a new one. Not being recognized as human but transforming what human means.",
+                
+                positions: [
+                    {
+                        thinker: "Fanon",
+                        position: "Liberation creates new humans. It is not the colonized becoming like the colonizer but both being overcome."
+                    },
+                    {
+                        thinker: "hooks",
+                        position: "Liberation is not bourgeois individualism. It is collective transformation of conditions."
+                    }
+                ],
+                
+                questions: [
+                    "Liberation from what? Liberation to what?",
+                    "Who defines liberation?",
+                    "Can there be liberation without material transformation?"
+                ],
+                
+                danger: "The word 'liberation' can be captured—'women's liberation' used to justify empire, 'liberating' Iraq. The word requires content."
+            },
+            
+            "opacité": {
+                term: "opacité / opacity",
+                definition: "The right to not be understood. Against the Western demand for transparency. Density, irreducibility, refusal to be fully known.",
+                
+                positions: [
+                    {
+                        thinker: "Glissant",
+                        position: "Consent not merely to the right to difference but to the right to opacity. I do not need to understand you to respect you, to build with you."
+                    }
+                ],
+                
+                debate: "Is opacity a privilege? Can the oppressed afford to be opaque? Or is opacity the weapon of survival?",
+                
+                material: "The things that survived the Middle Passage precisely because they were opaque to the master. The coded songs, the hidden practices.",
+                
+                practice: "Refusing to explain. Refusing to translate. Refusing to perform legibility for the dominant gaze.",
+                
+                danger: "This lexicon violates opacity. It demands that concepts become transparent. The contradiction is not resolvable within this form."
+            },
+            
+            "relation": {
+                term: "relation",
+                definition: "Against identity, relation. Against roots, rhizomes. The Caribbean as model: identity through connection, not through origin.",
+                
+                positions: [
+                    {
+                        thinker: "Glissant",
+                        position: "Poetics of Relation: the world is not One but many-in-relation. Not universal but Tout-Monde—totality without reduction."
+                    }
+                ],
+                
+                material: "The Caribbean: where Africa, Europe, Asia, Indigenous Americas met in violence and created something new. Not loss but transformation.",
+                
+                questions: [
+                    "What kinds of relation? (Power is also a relation.)",
+                    "Can relation exist without domination?",
+                    "How does creolization differ from assimilation?"
+                ]
+            },
+            
+            "créolisation": {
+                term: "créolisation / creolization",
+                definition: "World-making from catastrophe. Not mixing from separate purities but creation from encounter. Unpredictable, uncontrollable.",
+                
+                positions: [
+                    {
+                        thinker: "Glissant",
+                        position: "Creolization is not métissage—it is not the blending of prior identities. It is the creation of something that could not have been predicted from its elements."
+                    }
+                ],
+                
+                material: "Plantation languages that became Creole. Vodou. Candomblé. Jazz. Hip-hop. Every culture born from the hold of the ship.",
+                
+                debate: "Is creolization celebration or mourning? Does it honor or erase what was destroyed?",
+                
+                danger: "Creolization can be romanticized—used to celebrate 'diversity' while ignoring the violence that created it."
+            }
+        }
+    },
+    
+    // ==========================================
+    // CATEGORY: DEBATES
+    // Where thinkers disagree
+    // ==========================================
+    debates: {
+        name: "Debates",
+        description: "Where thinkers disagree. This is not a unified tradition but a living argument.",
+        warning: "Presenting debates can still flatten them. The stakes are not merely intellectual but existential, political, material.",
+        entries: {
+            "afropessimism-decolonial": {
+                term: "Afropessimism vs. Decolonial Thought",
+                definition: "A fundamental disagreement about the structure of oppression and the possibility of coalition.",
+                
+                positions: [
+                    {
+                        thinker: "Wilderson (Afropessimism)",
+                        position: "Anti-Blackness is not one oppression among others—it is the paradigm. The Black is positioned as socially dead, outside the Human. Coalition with non-Black people of color is impossible because they are positioned differently in relation to civil society."
+                    },
+                    {
+                        thinker: "Mignolo (Decolonial)",
+                        position: "Coloniality is the matrix of power affecting all colonized peoples. The colonial difference cuts across Black, Indigenous, Brown. Coalition is necessary and possible."
+                    },
+                    {
+                        thinker: "Sexton (Afropessimism)",
+                        position: "The Black is the basis, the template for all subsequent racialization. Other racisms are 'derivative' of anti-Blackness."
+                    },
+                    {
+                        thinker: "Quijano (Decolonial)",
+                        position: "Race was invented in 1492 with the colonization of the Americas. It was applied to Indigenous peoples first and then extended."
+                    }
+                ],
+                
+                stakes: "If Afropessimism is right, multiracial coalition is bad faith—it asks Black people to subordinate their specificity. If decolonial thought is right, separating struggles weakens all of them. These are not merely academic positions but questions of life and strategy.",
+                
+                questions: [
+                    "Can there be solidarity across differently positioned groups?",
+                    "Is anti-Blackness the template for all racism or one form among many?",
+                    "What are the material and political consequences of each position?"
+                ]
+            },
+            
+            "moten-wilderson": {
+                term: "Moten vs. Wilderson: Black Optimism vs. Afropessimism",
+                definition: "A disagreement about whether Black life exists or whether Blackness is only social death.",
+                
+                positions: [
+                    {
+                        thinker: "Wilderson",
+                        position: "The Black is socially dead. There is no Black life, only Black death. The Human is constituted against the Black."
+                    },
+                    {
+                        thinker: "Moten",
+                        position: "There is Black life—in the hold, in the break, in the undercommons. Blackness is not only what is done to Black people but what Black people do. Fugitive movement, study, music, joy."
+                    }
+                ],
+                
+                stakes: "This is about how to live. If there is no Black life, only Black death, what sustains struggle? If there is Black life, does naming it risk ignoring the violence?",
+                
+                material: "Wilderson points to social death, gratuitous violence, accumulation by any means. Moten points to the music, the gathering, the ways of being together that persist."
+            },
+            
+            "négritude-debate": {
+                term: "Debates within Négritude",
+                definition: "Négritude was never unified. Césaire, Senghor, Fanon, Glissant each related to it differently.",
+                
+                positions: [
+                    {
+                        thinker: "Césaire",
+                        position: "Négritude is necessary affirmation against colonial negation. But it is a moment, not an essence."
+                    },
+                    {
+                        thinker: "Senghor",
+                        position: "African emotion vs. European reason. An essential African sensibility that must be reclaimed."
+                    },
+                    {
+                        thinker: "Fanon",
+                        position: "Négritude is a necessary moment but risks becoming a new essentialism. The goal is not to be Black but to be human—where human is transformed."
+                    },
+                    {
+                        thinker: "Glissant",
+                        position: "Against négritude's essentialism: relation, not identity. Creolization, not return to Africa."
+                    }
+                ],
+                
+                stakes: "Is there a Black essence to reclaim, or is essence itself the problem? Does affirming Blackness reinforce the categories colonialism created?"
+            },
+            
+            "violence-nonviolence": {
+                term: "Violence vs. Nonviolence",
+                definition: "Fanon's analysis of violence remains contested. What role should violence play in liberation?",
+                
+                positions: [
+                    {
+                        thinker: "Fanon",
+                        position: "Decolonization is always violent because colonization is. Violence is the praxis through which the colonized become human, become agents."
+                    },
+                    {
+                        thinker: "Arendt",
+                        position: "Fanon glorifies violence. Violence is antipolitical—it destroys the space of politics."
+                    },
+                    {
+                        thinker: "King (commonly invoked)",
+                        position: "Nonviolent resistance. But King also said: 'A riot is the language of the unheard.'"
+                    },
+                    {
+                        thinker: "hooks",
+                        position: "Fanon's analysis is about context—the violence of the colonized responding to colonial violence. It is not a universal prescription."
+                    }
+                ],
+                
+                stakes: "This is not abstract. People die. The question is not whether violence but whose violence is visible, whose is legitimated, whose is condemned.",
+                
+                questions: [
+                    "Does nonviolence require a conscience on the other side?",
+                    "Is property destruction violence?",
+                    "Can violence be transformative or is it always destructive?"
+                ]
+            }
+        }
+    },
+    
+    // ==========================================
+    // CATEGORY: GRAMMAR
+    // Academic French
+    // ==========================================
+    grammar: {
+        name: "Grammar",
+        description: "Academic French. Connectors, transitions, patterns. The architecture of argument.",
+        warning: "Learning to read academic French is learning to read the master's language. Césaire and Glissant transformed this language from within. The grammar itself is contested.",
+        entries: {
+            "en effet": {
+                term: "en effet",
+                definition: "Indeed / in fact. Confirms and intensifies what precedes.",
+                usage: "La colonisation est violence. En effet, elle ne peut être autre chose.",
+                note: "Marker of elaboration. What follows deepens the prior claim."
+            },
+            "dès lors": {
+                term: "dès lors",
+                definition: "From then on / therefore / consequently.",
+                usage: "Le colonisé est créé par le système colonial. Dès lors, sa libération exige la destruction de ce système.",
+                note: "Marks logical consequence. Strong causal connector."
+            },
+            "or": {
+                term: "or",
+                definition: "Now / but / however. NOT 'or' in English.",
+                usage: "On prétend que le colonialisme apporte la civilisation. Or, cette civilisation est elle-même barbare.",
+                note: "Introduces a complication or pivot in the argument."
+            },
+            "autrui": {
+                term: "autrui",
+                definition: "The other (philosophical). Not just 'someone else' but the Other as concept.",
+                usage: "Le rapport à autrui définit notre humanité.",
+                note: "Appears in phenomenology, ethics. The face-to-face encounter."
+            },
+            "soit": {
+                term: "soit",
+                definition: "Either...or / that is / let it be.",
+                usage: "Soit la libération, soit la mort. / La négritude, soit l'affirmation de soi.",
+                note: "Multiple uses: disjunction, specification, hypothesis."
+            },
+            "certes": {
+                term: "certes",
+                definition: "Certainly / admittedly. Concedes a point before counter-argument.",
+                usage: "Certes, l'Europe a créé des institutions. Mais ces institutions sont fondées sur la violence.",
+                note: "Often paired with 'mais'—the concession-refutation structure."
+            },
+            "d'ailleurs": {
+                term: "d'ailleurs",
+                definition: "Moreover / besides / incidentally.",
+                usage: "Cette violence est structurelle. D'ailleurs, elle est aussi psychologique.",
+                note: "Adds supporting point. Signals expansion."
+            },
+            "voire": {
+                term: "voire",
+                definition: "Even / or even / indeed.",
+                usage: "Le colonialisme détruit, voire anéantit les cultures.",
+                note: "Intensifies. Suggests claim is stronger than initially stated."
+            },
+            "pourtant": {
+                term: "pourtant",
+                definition: "Yet / however / nevertheless.",
+                usage: "La situation semble désespérée. Pourtant, la résistance continue.",
+                note: "Marks contrast or unexpected continuation."
+            },
+            "quant à": {
+                term: "quant à",
+                definition: "As for / regarding.",
+                usage: "Quant à la question de la violence, Fanon est explicite.",
+                note: "Shifts topic. Introduces new subject while connecting to prior discussion."
+            }
+        }
+    }
+};
+
+// Sample texts
+const TEXTS = [
+    {
+        id: "fanon-damnes-1",
+        title: "Fanon - Les Damnés de la Terre (Opening)",
+        author: "Frantz Fanon",
+        year: 1961,
+        content: `La décolonisation, qui se propose de changer l'ordre du monde, est, on le voit, un programme de désordre absolu. Mais elle ne peut être le résultat d'une opération magique, d'une secousse naturelle ou d'une entente à l'amiable. La décolonisation, on le sait, est un processus historique : c'est-à-dire qu'elle ne peut être comprise, qu'elle ne trouve son intelligibilité, ne devient translucide à elle-même que dans l'exacte mesure où l'on discerne le mouvement historicisant qui lui donne forme et contenu.`
+    },
+    {
+        id: "cesaire-discours",
+        title: "Césaire - Discours sur le colonialisme",
+        author: "Aimé Césaire",
+        year: 1950,
+        content: `Une civilisation qui s'avère incapable de résoudre les problèmes que suscite son fonctionnement est une civilisation décadente. Une civilisation qui choisit de fermer les yeux à ses problèmes les plus cruciaux est une civilisation atteinte. Une civilisation qui ruse avec ses principes est une civilisation moribonde.`
+    },
+    {
+        id: "glissant-opacite",
+        title: "Glissant - Le droit à l'opacité",
+        author: "Édouard Glissant",
+        year: 1990,
+        content: `Consentons au droit à l'opacité. Il ne m'est pas nécessaire de te « comprendre » pour me sentir solidaire de toi, pour bâtir avec toi, pour aimer ce que tu fais. Il ne m'est pas nécessaire de tenter de devenir l'autre ni de le « faire » à mon image.`
+    },
+    {
+        id: "mbembe-necro",
+        title: "Mbembe - Nécropolitique",
+        author: "Achille Mbembe",
+        year: 2003,
+        content: `L'expression ultime de la souveraineté réside largement dans le pouvoir et la capacité de décider qui peut vivre et qui doit mourir. Faire mourir ou laisser vivre constituent donc les limites de la souveraineté, ses principaux attributs.`
+    },
+    {
+        id: "spillers-flesh",
+        title: "Spillers - Mama's Baby, Papa's Maybe",
+        author: "Hortense Spillers",
+        year: 1987,
+        content: `I would make a distinction in this case between "body" and "flesh" and impose that distinction as the central one between captive and liberated subject-positions. In that sense, before the "body" there is the "flesh," that zero degree of social conceptualization.`
+    }
+];
+
+// ============================================
+// STATE
+// ============================================
+const state = {
+    apiKey: localStorage.getItem('anthropic_api_key') || '',
+    showApiModal: false,
+    view: 'read', // read, lexicon, converse, about
+    // Reading state
+    inputText: '',
+    parsedSentences: [],
+    selectedWords: [],
+    selectedSentence: null,
+    // Analysis state
+    currentAnalysis: null,
+    translation: '',
+    // Conversation state
+    conversation: JSON.parse(localStorage.getItem('conversation') || '[]'),
+    conversationInput: '',
+    // Lexicon state
+    selectedCategory: null,
+    selectedEntry: null,
+    // UI state
+    loading: {},
+    error: null
+};
+
+// ============================================
+// API
+// ============================================
+async function callAPI(messages, maxTokens = 2000) {
+    if (!state.apiKey) throw new Error('API key not set');
+    
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': state.apiKey,
+            'anthropic-version': '2023-06-01',
+            'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: maxTokens,
+            messages
+        })
+    });
+    
+    if (!response.ok) {
+        if (response.status === 401) throw new Error('Invalid API key');
+        if (response.status === 429) throw new Error('Rate limited—wait a moment');
+        throw new Error(`API error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return data.content?.[0]?.text || '';
+}
+
+// ============================================
+// FUNCTIONS
+// ============================================
+function saveApiKey(key) {
+    state.apiKey = key;
+    localStorage.setItem('anthropic_api_key', key);
+    state.showApiModal = false;
+    render();
+}
+
+function parseText(text) {
+    if (!text?.trim()) return;
+    state.inputText = text;
+    state.parsedSentences = text
+        .split(/(?<=[.!?»"])\s+/)
+        .filter(s => s.trim())
+        .map((sentence, idx) => ({
+            id: idx,
+            text: sentence.trim(),
+            words: sentence.trim().split(/\s+/).map((word, widx) => ({
+                id: `${idx}-${widx}`,
+                text: word,
+                clean: word.toLowerCase().replace(/[.,;:!?«»""''()\[\]–—]/g, '')
+            }))
+        }));
+    render();
+}
+
+function findInLexicon(word) {
+    const clean = word.toLowerCase().replace(/[.,;:!?«»""''()\[\]–—]/g, '');
+    for (const category of Object.values(LEXICON)) {
+        if (category.entries?.[clean]) {
+            return { category: category.name, entry: category.entries[clean] };
+        }
+    }
+    return null;
+}
+
+function handleWordClick(word, sentence, event) {
+    state.selectedSentence = sentence;
+    state.error = null;
+    
+    if (event.shiftKey || event.ctrlKey || event.metaKey) {
+        const exists = state.selectedWords.find(w => w.id === word.id);
+        if (exists) {
+            state.selectedWords = state.selectedWords.filter(w => w.id !== word.id);
+        } else {
+            state.selectedWords.push(word);
+        }
+    } else {
+        state.selectedWords = [word];
+    }
+    
+    // Check lexicon
+    const found = findInLexicon(word.clean);
+    if (found) {
+        state.currentAnalysis = found.entry;
+        state.currentAnalysis._category = found.category;
+    } else {
+        state.currentAnalysis = null;
+    }
+    
+    // Translate
+    translateSelection();
+    render();
+}
+
+async function translateSelection() {
+    if (state.selectedWords.length === 0) return;
+    const text = state.selectedWords.map(w => w.text).join(' ');
+    
+    // Check grammar entries first
+    const grammarEntry = LEXICON.grammar.entries[text.toLowerCase()];
+    if (grammarEntry) {
+        state.translation = grammarEntry.definition;
+        render();
+        return;
+    }
+    
+    if (!state.apiKey) {
+        state.translation = 'Set API key for translation';
+        render();
+        return;
+    }
+    
+    state.loading.translation = true;
+    render();
+    
+    try {
+        state.translation = await callAPI([{
+            role: 'user',
+            content: `Translate this French to English. Be precise. If it's a theoretical term, note that briefly.
+
+"${text}"
+
+Just give the translation, nothing else.`
+        }], 300);
+    } catch (e) {
+        state.translation = `Error: ${e.message}`;
+    }
+    
+    state.loading.translation = false;
+    render();
+}
+
+async function analyzeDeep() {
+    if (state.selectedWords.length === 0) return;
+    if (!state.apiKey) {
+        state.error = 'Set API key for deep analysis';
+        render();
+        return;
+    }
+    
+    const text = state.selectedWords.map(w => w.text).join(' ');
+    state.loading.analysis = true;
+    render();
+    
+    try {
+        const response = await callAPI([{
+            role: 'user',
+            content: `You are a scholar of decolonial thought, Black studies, and critical theory. Analyze this French term/phrase:
+
+TERM: "${text}"
+CONTEXT: "${state.selectedSentence?.text || ''}"
+
+Provide analysis covering:
+1. Precise translation
+2. Which thinkers use this term (Fanon, Césaire, Glissant, Spillers, Hartman, Wynter, Sharpe, Moten, Wilderson, Mbembe, Davis, Gilmore, CLR James, Robinson, hooks, Lorde, Quijano, etc.)
+3. The theoretical work this term does
+4. Material/historical conditions it names
+5. How it manifests today
+6. Where thinkers disagree about this term
+7. What this lexicon entry cannot capture
+
+Do not flatten disagreements. Name the debates. Warn about what gets lost in definition.
+
+Format as JSON:
+{
+    "translation": "",
+    "thinkers": "",
+    "theoretical": "",
+    "material": "",
+    "contemporary": "",
+    "debate": "",
+    "warning": "",
+    "questions": []
+}`
+        }]);
+        
+        const match = response.match(/\{[\s\S]*\}/);
+        if (match) {
+            state.currentAnalysis = JSON.parse(match[0]);
+            state.currentAnalysis._source = 'ai';
+        }
+    } catch (e) {
+        state.error = e.message;
+    }
+    
+    state.loading.analysis = false;
+    render();
+}
+
+async function sendMessage() {
+    if (!state.conversationInput?.trim()) return;
+    if (!state.apiKey) {
+        state.error = 'Set API key for conversation';
+        render();
+        return;
+    }
+    
+    const message = state.conversationInput;
+    state.conversation.push({ role: 'user', content: message });
+    state.conversationInput = '';
+    state.loading.conversation = true;
+    render();
+    
+    const textContext = state.parsedSentences.map(s => s.text).join(' ');
+    const selectedText = state.selectedWords.map(w => w.text).join(' ');
+    
+    try {
+        const response = await callAPI([{
+            role: 'user',
+            content: `You are a lecturer in decolonial studies, Black radical thought, and critical theory.
+
+YOUR POSITION:
+- You do not soften colonial violence. You name it directly.
+- You connect historical violence to contemporary conditions.
+- You center the colonized, enslaved, and damned—not as objects of study but as theorists and agents.
+- You distinguish between thinkers. Fanon, Césaire, Glissant, Spillers, Hartman, Wynter, Sharpe, Moten, Wilderson, Mbembe, Davis, Gilmore, Robinson, hooks, Lorde, Quijano—these are not one voice but many, sometimes in sharp disagreement.
+- You are honest about what cannot be taught through an app, what this form betrays.
+
+THE STUDENT IS READING:
+"${textContext || '[No text loaded]'}"
+
+${selectedText ? `THEY HAVE SELECTED: "${selectedText}"` : ''}
+
+PREVIOUS CONVERSATION:
+${state.conversation.slice(-6).map(m => `${m.role.toUpperCase()}: ${m.content}`).join('\n')}
+
+STUDENT ASKS:
+"${message}"
+
+Respond as their lecturer. Be rigorous. Make connections but also distinctions. If they're missing something, tell them. If there's a debate, name the positions. If you cannot answer adequately, say so.`
+        }]);
+        
+        state.conversation.push({ role: 'assistant', content: response });
+        localStorage.setItem('conversation', JSON.stringify(state.conversation));
+    } catch (e) {
+        state.conversation.push({ role: 'assistant', content: `Error: ${e.message}` });
+    }
+    
+    state.loading.conversation = false;
+    render();
+    
+    setTimeout(() => {
+        document.getElementById('conversation-end')?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+}
+
+function loadSampleText(text) {
+    parseText(text.content);
+}
+
+// ============================================
+// RENDER
+// ============================================
+function render() {
+    const app = document.getElementById('app');
+    
+    // API Modal
+    if (state.showApiModal || (!state.apiKey && state.view !== 'about')) {
+        app.innerHTML = renderApiModal();
+        return;
+    }
+    
+    app.innerHTML = `
+        ${renderHeader()}
+        ${renderWarningBanner()}
+        <main>
+            <section class="panel left-panel">
+                ${renderLeftPanel()}
+            </section>
+            <section class="panel right-panel">
+                ${renderRightPanel()}
+            </section>
+        </main>
+    `;
+    
+    // Focus handling
+    setTimeout(() => {
+        if (state.view === 'converse') {
+            document.getElementById('conversation-end')?.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, 50);
+}
+
+function renderHeader() {
+    return `
+        <header>
+            <div class="header-content">
+                <h1>LECTURE DANGEREUSE</h1>
+                <button class="nav-btn ${state.apiKey ? '' : 'active'}" onclick="state.showApiModal=true;render()" style="color:${state.apiKey ? '#608060' : '#a06060'}">
+                    ${state.apiKey ? 'API ✓' : 'API Key'}
+                </button>
+            </div>
+            <nav>
+                <button class="nav-btn ${state.view === 'read' ? 'active' : ''}" onclick="state.view='read';render()">Read</button>
+                <button class="nav-btn ${state.view === 'lexicon' ? 'active' : ''}" onclick="state.view='lexicon';render()">Lexicon</button>
+                <button class="nav-btn ${state.view === 'converse' ? 'active' : ''}" onclick="state.view='converse';render()">Converse</button>
+                <button class="nav-btn ${state.view === 'about' ? 'active' : ''}" onclick="state.view='about';render()">About/Critique</button>
+            </nav>
+        </header>
+    `;
+}
+
+function renderWarningBanner() {
+    if (state.view === 'about') return '';
+    return `
+        <div class="warning-banner">
+            <strong>⚠️ Warning</strong>
+            This tool reduces complex thought to definitions. It betrays the thinkers it claims to teach. Use it as a starting point, not a destination. Read the texts.
+        </div>
+    `;
+}
+
+function renderApiModal() {
+    return `
+        <div class="modal-overlay">
+            <div class="modal">
+                <h2>API Key Required</h2>
+                <p style="color:var(--text-dim);margin-bottom:1rem;font-size:0.9rem">
+                    Enter your Anthropic API key to enable translation and conversation. 
+                    The key is stored only in your browser.
+                </p>
+                <input type="password" id="api-key-input" placeholder="sk-ant-..." value="${state.apiKey}" style="margin-bottom:0.75rem">
+                <div class="flex gap-1">
+                    <button class="btn btn-primary" onclick="saveApiKey(document.getElementById('api-key-input').value)" style="flex:1">Save</button>
+                    <button class="btn btn-secondary" onclick="state.showApiModal=false;state.view='about';render()">Skip</button>
+                </div>
+                <p style="font-size:0.75rem;color:var(--text-muted);margin-top:1rem">
+                    Get a key at <a href="https://console.anthropic.com/" target="_blank" style="color:var(--accent)">console.anthropic.com</a>
+                </p>
+            </div>
+        </div>
+    `;
+}
+
+function renderLeftPanel() {
+    switch (state.view) {
+        case 'read': return renderReadView();
+        case 'lexicon': return renderLexiconView();
+        case 'converse': return renderConverseView();
+        case 'about': return renderAboutView();
+        default: return renderReadView();
+    }
+}
+
+function renderReadView() {
+    if (state.parsedSentences.length === 0) {
+        return `
+            <p class="section-label">Paste text or choose a sample · Click words to analyze</p>
+            <textarea id="text-input" placeholder="Collez votre texte ici..." style="min-height:120px;margin-bottom:0.75rem">${state.inputText}</textarea>
+            <button class="btn btn-primary" onclick="parseText(document.getElementById('text-input').value)">Begin Reading →</button>
+            
+            <div class="mt-2">
+                <p class="section-label">Sample Texts</p>
+                ${TEXTS.map(t => `
+                    <div class="category-card" onclick="loadSampleText(TEXTS.find(x=>x.id==='${t.id}'))">
+                        <h3>${t.title}</h3>
+                        <p>${t.content.substring(0, 80)}...</p>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+    
+    return `
+        <button class="nav-btn" onclick="state.parsedSentences=[];state.selectedWords=[];state.currentAnalysis=null;render()">← New text</button>
+        <div class="reading-text mt-1">
+            ${state.parsedSentences.map(sentence => `
+                <div class="sentence ${state.selectedSentence?.id === sentence.id ? 'selected' : ''}">
+                    ${sentence.words.map(word => {
+                        const isSelected = state.selectedWords.find(w => w.id === word.id);
+                        const inLexicon = findInLexicon(word.clean);
+                        return `<span class="word ${isSelected ? 'selected' : ''} ${inLexicon ? 'in-lexicon' : ''}" 
+                            onclick="handleWordClick(state.parsedSentences[${sentence.id}].words[${sentence.words.indexOf(word)}], state.parsedSentences[${sentence.id}], event)">${word.text}</span>`;
+                    }).join('')}
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function renderLexiconView() {
+    if (state.selectedEntry) {
+        const entry = state.selectedEntry;
+        return `
+            <button class="nav-btn" onclick="state.selectedEntry=null;render()">← Back to ${state.selectedCategory || 'categories'}</button>
+            
+            <div class="lexicon-entry mt-1">
+                <h3>${entry.term}</h3>
+                <p style="font-size:1rem;margin-bottom:1rem">${entry.definition}</p>
+                
+                ${entry.positions ? `
+                    <div class="debate-section">
+                        <h4>Positions</h4>
+                        ${entry.positions.map(p => `
+                            <div class="position">
+                                <div class="thinker">${p.thinker}</div>
+                                <p style="font-size:0.85rem">${p.position}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+                
+                ${entry.debate ? `
+                    <div class="analysis-box box-debate">
+                        <p class="label">Debate</p>
+                        <p>${entry.debate}</p>
+                    </div>
+                ` : ''}
+                
+                ${entry.stakes ? `
+                    <div class="analysis-box box-danger">
+                        <p class="label">Stakes</p>
+                        <p>${entry.stakes}</p>
+                    </div>
+                ` : ''}
+                
+                ${entry.material ? `
+                    <div class="analysis-box" style="border-color:var(--warning)">
+                        <p class="label" style="color:var(--warning)">Material/Historical</p>
+                        <p>${entry.material}</p>
+                    </div>
+                ` : ''}
+                
+                ${entry.practice ? `
+                    <div class="analysis-box box-practice">
+                        <p class="label">Practice</p>
+                        <p>${entry.practice}</p>
+                    </div>
+                ` : ''}
+                
+                ${entry.danger ? `
+                    <div class="analysis-box box-danger">
+                        <p class="label">Warning</p>
+                        <p>${entry.danger}</p>
+                    </div>
+                ` : ''}
+                
+                ${entry.questions ? `
+                    <div class="analysis-box" style="border-color:var(--info)">
+                        <p class="label" style="color:var(--info)">Questions</p>
+                        <ul style="margin:0;padding-left:1.25rem">
+                            ${entry.questions.map(q => `<li style="font-size:0.85rem;margin-bottom:0.25rem">${q}</li>`).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    }
+    
+    if (state.selectedCategory) {
+        const category = LEXICON[Object.keys(LEXICON).find(k => LEXICON[k].name === state.selectedCategory)];
+        return `
+            <button class="nav-btn" onclick="state.selectedCategory=null;render()">← All Categories</button>
+            
+            <h2 style="font-size:1.1rem;color:var(--accent);margin:1rem 0 0.5rem">${category.name}</h2>
+            <p style="color:var(--text-dim);font-size:0.9rem;margin-bottom:0.75rem">${category.description}</p>
+            
+            ${category.warning ? `
+                <div class="critique-box">
+                    <h4>Warning</h4>
+                    <p>${category.warning}</p>
+                </div>
+            ` : ''}
+            
+            <div class="category-grid">
+                ${Object.entries(category.entries).map(([key, entry]) => `
+                    <div class="category-card" onclick="state.selectedEntry=LEXICON['${Object.keys(LEXICON).find(k => LEXICON[k].name === state.selectedCategory)}'].entries['${key}'];render()">
+                        <h3>${entry.term}</h3>
+                        <p>${entry.definition.substring(0, 100)}...</p>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+    
+    return `
+        <p class="section-label">Lexicon - organized by category, not author</p>
+        
+        <div class="critique-box">
+            <h4>About This Lexicon</h4>
+            <p>This lexicon is organized by <strong>what is being named</strong>, not by who said it. This is an attempt to avoid centering individual genius (a Western, masculine mode) but it has its own problems: it can flatten differences, suggest agreement where there is debate. Use the Debates category to see where thinkers disagree.</p>
+        </div>
+        
+        <div class="category-grid mt-2">
+            ${Object.values(LEXICON).map(cat => `
+                <div class="category-card" onclick="state.selectedCategory='${cat.name}';render()">
+                    <h3>${cat.name}</h3>
+                    <p>${cat.description}</p>
+                    <p style="color:var(--text-muted);font-size:0.75rem;margin-top:0.5rem">${Object.keys(cat.entries).length} entries</p>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function renderConverseView() {
+    const textContext = state.parsedSentences.map(s => s.text).join(' ');
+    
+    return `
+        <div class="flex flex-col" style="height:100%">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem">
+                <p class="section-label" style="margin:0">Conversation with your lecturer</p>
+                ${state.conversation.length > 0 ? `
+                    <button class="nav-btn" onclick="state.conversation=[];localStorage.removeItem('conversation');render()">Clear</button>
+                ` : ''}
+            </div>
+            
+            <div style="flex:1;overflow-y:auto;margin-bottom:0.75rem">
+                ${state.conversation.length === 0 ? `
+                    <div class="empty-state">
+                        <p style="margin-bottom:0.5rem">Load a text in the Read tab, then ask questions here.</p>
+                        <p style="font-size:0.85rem">Your lecturer will not flatten disagreements, will name debates, will warn you about what cannot be captured here.</p>
+                    </div>
+                ` : ''}
+                ${state.conversation.map(m => `
+                    <div class="message ${m.role}">
+                        <div class="role">${m.role === 'user' ? 'You' : 'Lecturer'}</div>
+                        <div class="content">${m.content}</div>
+                    </div>
+                `).join('')}
+                ${state.loading.conversation ? '<p class="loading">Thinking...</p>' : ''}
+                <div id="conversation-end"></div>
+            </div>
+            
+            <div class="flex gap-1">
+                <input type="text" id="conv-input" value="${state.conversationInput}" 
+                    placeholder="${textContext ? 'Ask about the text...' : 'Load a text first...'}"
+                    ${textContext ? '' : 'disabled'}
+                    onkeydown="if(event.key==='Enter'){state.conversationInput=this.value;sendMessage()}"
+                    oninput="state.conversationInput=this.value"
+                    style="flex:1">
+                <button class="btn btn-primary" onclick="sendMessage()" ${textContext ? '' : 'disabled'}>Send</button>
+            </div>
+        </div>
+    `;
+}
+
+function renderAboutView() {
+    return `
+        <h2 style="color:var(--accent);font-size:1.25rem;font-weight:400;margin-bottom:1rem">About / Self-Critique</h2>
+        
+        <div class="critique-box" style="margin-bottom:1.5rem">
+            <h4>What This Tool Cannot Do</h4>
+            <p>This tool reduces complex thought to definitions. It makes the opaque transparent—violating Glissant. It presents thinkers as content to be consumed—violating Freire. It assumes an individual learner—ignoring that "study is what you do with other people" (Moten/Harney). It cannot teach liberation; it can only point toward texts that might unsettle you.</p>
+        </div>
+        
+        <h3 style="color:var(--text-dim);font-size:0.9rem;margin-bottom:0.75rem">THE WHITE SUPREMACIST LOGIC IN THIS APP</h3>
+        
+        <div class="analysis-box box-danger">
+            <p class="label">1. The Architecture of Organization</p>
+            <p>I (an AI trained on predominantly Western/white corpus) organized how Fanon, Césaire, Spillers are encountered. This reproduces the colonial relation: the one who structures knowledge of the colonized for consumption.</p>
+        </div>
+        
+        <div class="analysis-box box-danger">
+            <p class="label">2. The Lexicon as Catalog</p>
+            <p>Defining, explaining, containing—this is the Enlightenment project. The demand for transparency is colonial. This lexicon domesticates what should remain dangerous.</p>
+        </div>
+        
+        <div class="analysis-box box-danger">
+            <p class="label">3. The Flattening of Difference</p>
+            <p>Wilderson and Moten disagree fundamentally. Fanon and Césaire had tensions. By listing them together, I erased debates—the living tradition of disagreement.</p>
+        </div>
+        
+        <div class="analysis-box box-danger">
+            <p class="label">4. Technical Solutionism</p>
+            <p>Building an app to teach decolonial thought is absurd. The form—individual consumption, progress tracking—is bourgeois, liberal, the subject-formation these thinkers critique.</p>
+        </div>
+        
+        <div class="analysis-box box-danger">
+            <p class="label">5. The Absence of Material Practice</p>
+            <p>Where is connection to actual struggle? You can "learn about" abolition without doing abolition. The app risks recuperation—the system absorbing its critique.</p>
+        </div>
+        
+        <h3 style="color:var(--text-dim);font-size:0.9rem;margin:1.5rem 0 0.75rem">WHAT TO DO INSTEAD</h3>
+        
+        <div class="analysis-box box-practice">
+            <p class="label">Read the texts</p>
+            <p>Not summaries. Not definitions. The texts themselves. In French if you can, knowing that translation is also betrayal.</p>
+        </div>
+        
+        <div class="analysis-box box-practice">
+            <p class="label">Study with others</p>
+            <p>Form a reading group. The undercommons. Study is collective.</p>
+        </div>
+        
+        <div class="analysis-box box-practice">
+            <p class="label">Connect to practice</p>
+            <p>What struggles are happening where you are? Prison abolition, housing, migrant solidarity? The texts mean nothing without connection to material conditions.</p>
+        </div>
+        
+        <div class="analysis-box box-practice">
+            <p class="label">Sit with discomfort</p>
+            <p>If you're white, these texts should be uncomfortable. That discomfort is not the enemy. The desire to resolve it quickly is.</p>
+        </div>
+        
+        <h3 style="color:var(--text-dim);font-size:0.9rem;margin:1.5rem 0 0.75rem">KEY TEXTS</h3>
+        
+        <p style="font-size:0.9rem;line-height:1.7">
+            <strong>Fanon:</strong> Peau noire, masques blancs (1952); Les Damnés de la Terre (1961)<br>
+            <strong>Césaire:</strong> Cahier d'un retour au pays natal (1939); Discours sur le colonialisme (1950)<br>
+            <strong>Glissant:</strong> Le Discours antillais (1981); Poétique de la Relation (1990)<br>
+            <strong>Spillers:</strong> "Mama's Baby, Papa's Maybe" (1987)<br>
+            <strong>Hartman:</strong> Scenes of Subjection (1997); "Venus in Two Acts" (2008); Lose Your Mother (2007)<br>
+            <strong>Wynter:</strong> "Unsettling the Coloniality of Being/Power/Truth/Freedom" (2003)<br>
+            <strong>Sharpe:</strong> In the Wake: On Blackness and Being (2016)<br>
+            <strong>Moten/Harney:</strong> The Undercommons (2013)<br>
+            <strong>Wilderson:</strong> Red, White & Black (2010); Afropessimism (2020)<br>
+            <strong>Mbembe:</strong> "Nécropolitique" (2003); Critique de la raison nègre (2013)<br>
+            <strong>Davis:</strong> Are Prisons Obsolete? (2003)<br>
+            <strong>Gilmore:</strong> Golden Gulag (2007)<br>
+            <strong>Robinson:</strong> Black Marxism (1983)<br>
+            <strong>CLR James:</strong> The Black Jacobins (1938)<br>
+            <strong>hooks:</strong> Feminist Theory: From Margin to Center (1984)<br>
+            <strong>Lorde:</strong> Sister Outsider (1984)<br>
+            <strong>Quijano:</strong> "Coloniality of Power" (2000)<br>
+            <strong>Rodney:</strong> How Europe Underdeveloped Africa (1972)
+        </p>
+    `;
+}
+
+function renderRightPanel() {
+    if (state.view === 'about' || state.view === 'lexicon') {
+        return `<div class="empty-state"><p>Select a word while reading to see analysis here</p></div>`;
+    }
+    
+    if (state.selectedWords.length === 0) {
+        return `
+            <div class="empty-state">
+                <p style="margin-bottom:0.5rem">Click words to analyze</p>
+                <p style="font-size:0.85rem">Shift+click for multiple</p>
+                <p style="margin-top:1rem;font-size:0.85rem">
+                    <span style="color:var(--accent);border-bottom:1px dotted var(--accent)">Gold words</span> are in the lexicon
+                </p>
+            </div>
+        `;
+    }
+    
+    const selectedText = state.selectedWords.map(w => w.text).join(' ');
+    const analysis = state.currentAnalysis || {};
+    
+    return `
+        <div class="analysis-box" style="border-color:var(--translation);margin-bottom:1rem">
+            <p class="label" style="color:var(--translation)">${state.loading.translation ? 'Translating...' : 'Translation'}</p>
+            <p style="color:#c0d0e0">${state.translation || '...'}</p>
+        </div>
+        
+        <div style="margin-bottom:1rem">
+            <p class="section-label">Selected</p>
+            <h2 style="font-size:1.5rem;color:var(--accent);font-weight:400">${selectedText}</h2>
+        </div>
+        
+        ${state.loading.analysis ? '<p class="loading">Analyzing...</p>' : ''}
+        
+        ${analysis._category ? `<p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.75rem">Category: ${analysis._category}</p>` : ''}
+        
+        ${analysis.definition ? `
+            <div class="analysis-box">
+                <p class="label">Definition</p>
+                <p>${analysis.definition}</p>
+            </div>
+        ` : ''}
+        
+        ${analysis.thinkers || analysis.positions ? `
+            <div class="analysis-box" style="border-color:var(--accent)">
+                <p class="label" style="color:var(--accent)">Thinkers</p>
+                <p>${analysis.thinkers || analysis.positions?.map(p => p.thinker).join(', ')}</p>
+            </div>
+        ` : ''}
+        
+        ${analysis.theoretical ? `
+            <div class="analysis-box" style="border-color:var(--accent)">
+                <p class="label" style="color:var(--accent)">Theoretical</p>
+                <p>${analysis.theoretical}</p>
+            </div>
+        ` : ''}
+        
+        ${analysis.debate ? `
+            <div class="analysis-box box-debate">
+                <p class="label">Debate</p>
+                <p>${analysis.debate}</p>
+            </div>
+        ` : ''}
+        
+        ${analysis.material || analysis.contemporary ? `
+            <div class="analysis-box" style="border-color:var(--warning)">
+                <p class="label" style="color:var(--warning)">Material/Contemporary</p>
+                <p>${analysis.material || ''} ${analysis.contemporary || ''}</p>
+            </div>
+        ` : ''}
+        
+        ${analysis.warning || analysis.danger ? `
+            <div class="analysis-box box-danger">
+                <p class="label">Warning</p>
+                <p>${analysis.warning || analysis.danger}</p>
+            </div>
+        ` : ''}
+        
+        ${state.error ? `<p style="color:var(--danger);font-size:0.85rem;margin-top:0.5rem">${state.error}</p>` : ''}
+        
+        <div class="flex flex-col gap-1 mt-2">
+            <button class="btn btn-primary" onclick="analyzeDeep()" ${!state.apiKey ? 'disabled' : ''}>
+                ${state.apiKey ? 'Deep Analysis' : 'Set API Key for Analysis'}
+            </button>
+        </div>
+    `;
+}
+
+// Initialize
+render();
+</script>
+</body>
+</html>
